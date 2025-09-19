@@ -86,8 +86,6 @@ protected:
              auto y = parse_tag ( str, x[0], x[1] );
 
         if (!y.has_value() ) /*---------------*/ { off=x[1]; continue; }
-
-        console::log( "->", y["type"].as<string_t>(), b );
         if ( y["type"].as<string_t>().size()>12 ){ off=x[1]; continue; }
 
         if ( regex::test( y["type"].as<string_t>(), "script", true ) ){ b = (b+1)%3; }
