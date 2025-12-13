@@ -1,29 +1,41 @@
-# Nodepp XML Library
-
-A lightweight C++ library for parsing and formatting XML, designed for high-performance, asynchronous applications.
-
----
-
-## Overview
-
+# Nodepp XML Library - A lightweight CML parsing and formatting Library for Nodepp.
 The Nodepp-XML library provides a simple and efficient way to handle XML data in C++. It converts XML strings into a structured **JSON-like object model**, allowing for easy manipulation and traversal. The library also supports formatting these objects back into well-formed XML strings.
 
-This library is a component of the [Nodepp Project](https://github.com/NodeppOfficial/nodepp), an open-source C++ framework inspired by Node.js.
+## Dependencies & Cmake Integration
+```bash
+include(FetchContent)
 
----
+FetchContent_Declare(
+	nodepp
+	GIT_REPOSITORY   https://github.com/NodeppOfficial/nodepp
+	GIT_TAG          origin/main
+	GIT_PROGRESS     ON
+)
+FetchContent_MakeAvailable(nodepp)
+
+FetchContent_Declare(
+	nodepp-xml
+	GIT_REPOSITORY   https://github.com/NodeppOfficial/nodepp-xml
+	GIT_TAG          origin/main
+	GIT_PROGRESS     ON
+)
+FetchContent_MakeAvailable(nodepp-xml)
+
+#[...]
+
+target_link_libraries( #[...]
+	PUBLIC nodepp nodepp-xml #[...]
+)
+```
 
 ## Features
-
 - **XML Parsing**: Converts XML documents into a a hierarchical `object_t` structure.
 - **XML Formatting**: Generates XML strings from the structured object model.
 - **DOM-like API**: Includes helper functions to create, append, and modify elements and attributes.
 - **Base64 Encoding**: Automatically handles text content and whitespace preservation using Base64.
 - **Lightweight**: Built with a focus on performance and minimal dependencies within the Nodepp ecosystem.
 
----
-
 ## Getting Started
-
 ### Prerequisites
 ```bash
 - A C++11 or above compliant compiler.
@@ -50,3 +62,6 @@ void onMain() {
 
 }
 ```
+
+## License
+**Nodepp-xml** is distributed under the MIT License. See the LICENSE file for more details.
