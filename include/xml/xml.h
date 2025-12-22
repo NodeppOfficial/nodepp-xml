@@ -112,9 +112,9 @@ protected:
 
     object_t parse_tag( const string_t& str, const ptr_t<ulong>& data ) const noexcept {
 
-        static regex_t reg1( "(\\w+=\"[^\"]+\")|(\\w+)" ); reg1.clear_memory();
-        static regex_t reg2( "^(\\w+)=\"([^\"]+)\"$" );    reg2.clear_memory(); 
-        auto   raw = str.slice(data[1],data[2]);
+        thread_local static regex_t reg1( "(\\w+=\"[^\"]+\")|(\\w+)" ); reg1.clear_memory();
+        thread_local static regex_t reg2( "^(\\w+)=\"([^\"]+)\"$" );    reg2.clear_memory();
+        /*--------*/ static regex_t reg3( "[\n\t ]+" ); auto raw=str.slice(data[1],data[2]);
 
         switch( data[0] ){ case 3 : do {
             return object_t({ { "_text_",    base64 ( raw ) } });
@@ -127,10 +127,10 @@ protected:
             reg1.match_all( raw ); /*--*/ auto mem = reg1.get_memory();
             object_t attr; for( ulong x=0; x++<mem.size()-1; ){
                 reg2.match_all( mem[x] ); auto mem = reg2.get_memory();
-                attr[mem[0]] = mem.size()==2 ? mem[1] : string::null();
+                attr[ mem[0] ] =mem.size()!=2 ? string::null( /*--*/ )
+                /*----------*/ :reg3.replace_all(mem[1],string::space());
                 reg2.clear_memory();
-            }
-            return object_t({ { "type", mem[0] }, { "attr", attr } });
+            }   return object_t({ { "type", mem[0] }, { "attr", attr } });
         } while(0); break; }
         
     return nullptr; }
@@ -139,11 +139,10 @@ protected:
 
     ARRAY parse_list( const string_t& str ) const { ARRAY list;
         for( ulong x=0; x<str.size(); x++ ){
-        if ( str[x]=='\n' ){ continue; }
-             auto data=get_next_key( str, x );
-        if ( data.empty() ){ throw except_t("malformed XML"); }
-             list.push ( parse_tag( str, data ) );
-        }
+        if ( str[x]=='\n' || str[x]==' ' || str[x]=='\t' )
+           { continue; } auto data=get_next_key( str, x );
+        if ( !data.empty() ){ list.push ( parse_tag( str, data ) ); }
+       else{  list.push ( parse_tag( str, ptr_t<ulong>({ 3UL, x-1, x }) ) ); x--; }}
     return list; }
 
     /*─······································································─*/
@@ -173,10 +172,10 @@ protected:
 
         for( auto x: obj["attr"].keys() ){ 
              auto y= json::stringify ( obj["attr"][x] ); 
-             out  += regex::format( " ${0}=${1}", x, y ); 
+             out  += regex::format   ( " ${0}=${1}", x, y ); 
         }
 
-        if ( !obj.has("children") )
+        if   ( !obj.has("children") )
              { return out + "/>"; }
         else { return out + end ; }
 
