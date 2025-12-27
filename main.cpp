@@ -16,7 +16,7 @@ void onMain() {
     auto raw  = out.parse( data );
 
     xml::iterate_all( raw, [=]( object_t item ){
-        console::log( "->", item["type"].as<string_t>() );
+        console::log( "->", item["type"].as<string_t>(), json::stringify(item["attr"]) );
     });
 
 }

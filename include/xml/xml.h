@@ -38,7 +38,7 @@ protected:
 
     ptr_t<ulong> check_key( const string_t& str, ulong offset ) const noexcept {
         static ptr_t<string_t> pattern ({ "<!--", "</", "<", "-->", ">", "\n" });
-        auto   data = str.slice( offset, offset+4 ); ulong y=0, z=0;
+        auto   data = str.slice_view( offset, offset+4 ); ulong y=0, z=0;
 
         for( auto x: pattern ){
         if ( memcmp(data.get (),x.get (), min(data.size(),x.size()) )==0 )
@@ -49,7 +49,7 @@ protected:
 
     void wait_next( const string_t& str, ulong& offset ) const noexcept {
         static ptr_t<string_t> pattern ({ "/*", "*/", "#", "//", "\n", "\"" });
-        auto   data = str.slice( offset, offset+2 ); ulong y=0;
+        auto   data = str.slice_view( offset, offset+2 ); ulong y=0;
         auto   pttr = string_t();
 
         for( auto x: pattern ){
@@ -62,7 +62,7 @@ protected:
         /*----------------------------*/ default: return; /*----*/ break; 
         } offset++;
 
-        do { auto data = str.slice( offset, offset+2 );
+        do { auto data = str.slice_view( offset, offset+2 );
         if ( memcmp(data.get(),pttr.get(),min(data.size(),pttr.size()))==0 )
            { break; }} while( offset++<str.size() );
 
@@ -304,8 +304,9 @@ namespace nodepp { namespace xml {
 namespace nodepp { namespace xml {
 
     object_t find_element_all( object_t node, string_t data ){
-
-        auto pttr = regex::split( data, "\\s+|,+" );
+        static regex_t reg ( "\\s+|,+" );
+        auto   pttr = reg.split( data );
+        
         if( node.empty() ){ return nullptr; }
         queue_t<object_t> out; /*----------*/
 
@@ -321,8 +322,9 @@ namespace nodepp { namespace xml {
     /*─······································································─*/
 
     object_t find_element( object_t node, string_t data ){
+        static regex_t reg ( "\\s+|,+" );
+        auto   pttr = reg.split( data );
 
-        auto pttr = regex::split( data, "\\s+|,+" );
         if( node.empty() ){ return nullptr; }
         object_t out; 
 
